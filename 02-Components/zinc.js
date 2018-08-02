@@ -5,17 +5,26 @@
 const Zinc = {};
 
 (() => {
+
+    Zinc.registerComponent = function (elementName, templateFile, dataObject) {
+        if (!Zinc.components) {
+            Zinc.components = {};
+        }
+
+        Zinc.components[elementName] = {elementName, templateFile, dataObject};
+    };
+
     function renderComponent(element, content, userData) {
         // console.log(element, content); // eslint-disable-line no-console
         
-        let pageElement = document.querySelector(element);
+        let pageElements = document.querySelectorAll(element);
 
         let url = generateUrl(content);
 
         fetch(url)
         .then(res => res.text())
         .then(contentText => renderTemplate(contentText, userData))
-        .then(template => pageElement.insertAdjacentHTML('beforeend', template));
+        .then(template => pageElements.forEach(element => element.insertAdjacentHTML('beforeend', template)));
     }
 
     function generateUrl(string) {
@@ -31,8 +40,17 @@ const Zinc = {};
         return template.replace(/{{\s*([\w.]+)\s*}}/g, replaceWithString);
     }
 
+    function renderComponents() {
+        let componentsNames = Object.keys(Zinc.components);
+
+        for (let i = 0; i < componentsNames.length; i++) {
+            let currentComponent = Zinc.components[componentsNames[i]];
+            renderComponent(currentComponent.elementName, currentComponent.templateFile, currentComponent.dataObject);
+        }
+    }
     function init() {
-        renderComponent('user-item', 'user', Zinc.userData);
+        Zinc.registerComponent('user-item', 'user', Zinc.userData);
+        renderComponents();
     }
 
     document.addEventListener('DOMContentLoaded', init);
