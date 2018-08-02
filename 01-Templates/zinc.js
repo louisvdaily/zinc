@@ -20,7 +20,8 @@
 
         for (let userIndex = 0; userIndex < results.length; userIndex++) {
             let user = results[userIndex];
-            userList.insertAdjacentHTML('beforeend', renderTemplate(template, user));
+            renderTemplate('user', user)
+            .then(templateString => userList.insertAdjacentHTML('beforeend', templateString));
         }
     }
 
@@ -30,8 +31,11 @@
         return capitalWords.join(' ');
     }
 
-    function renderTemplate(templateString, object) {
-        return templateString.replace(/{{\s*([\w.]+)\s*}}/g, (match, captured) => capitalize(captured.split('.').reduce((acc, cur) => (acc[cur]), object)));
+    function renderTemplate(templateName, object) {
+        let url = (templateName.includes('http://') || templateName.includes('https://')) ? templateName : `${templateName}.html`;
+        return fetch(url)
+        .then(res => res.text())
+        .then(textString => textString.replace(/{{\s*([\w.]+)\s*}}/g, (match, captured) => capitalize(captured.split('.').reduce((acc, cur) => (acc[cur]), object))));
     }
 
     function init() {
