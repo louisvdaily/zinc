@@ -8,9 +8,9 @@
 
         let template = `
         <li class="user">
-            <img class="user-photo" src="{{ photo }}" alt="Photo of {{ firstName }} {{ lastName }}">
-            <div class="user-name">{{ firstName }} {{ lastName }}</div>
-            <div class="user-location">{{ city }}, {{ state }}</div>
+            <img class="user-photo" src="{{ picture.thumbnail }}" alt="Photo of {{ name.first }} {{ name.last }}">
+            <div class="user-name">{{ name.first }} {{ name.last }}</div>
+            <div class="user-location">{{ location.city }}, {{ location.state }}</div>
             <div class="user-email">{{ email }}</div>
         </li>
         `
@@ -20,15 +20,7 @@
 
         for (let userIndex = 0; userIndex < results.length; userIndex++) {
             let user = results[userIndex];
-            let userData = {
-                photo: user.picture.thumbnail,
-                firstName: capitalize(user.name.first),
-                lastName: capitalize(user.name.last),
-                city: capitalize(user.location.city),
-                state: capitalize(user.location.state),
-                email: user.email
-            }
-            userList.insertAdjacentHTML('beforeend', renderTemplate(template, userData));
+            userList.insertAdjacentHTML('beforeend', renderTemplate(template, user));
         }
     }
 
@@ -39,7 +31,7 @@
     }
 
     function renderTemplate(templateString, object) {
-        return templateString.replace(/{{\s*(\w+)\s*}}/g, (match, captured) => object[captured]);
+        return templateString.replace(/{{\s*([\w.]+)\s*}}/g, (match, captured) => capitalize(captured.split('.').reduce((acc, cur) => (acc[cur]), object)));
     }
 
     function init() {
